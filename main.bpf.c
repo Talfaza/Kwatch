@@ -1,6 +1,7 @@
 #include "vmlinux.h"
 #include <bpf/bpf_core_read.h>
 #include <bpf/bpf_helpers.h>
+
 /*
 This data will be sent to golang userspace
 */
@@ -9,7 +10,12 @@ struct event_t {
   u32 ppid;
   u32 uid;
   u8 command[16];
-};
+} __attribute__((preserve_access_index));
+
+/* Force event_t type to be emitted to BTF
+(needed for bpf2go -type) */
+const struct event_t *__unused_event_t
+    __attribute__((unused, section(".rodata")));
 
 /*
 Ring Buffer
